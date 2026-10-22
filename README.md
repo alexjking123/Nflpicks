@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10291f">
+<title>Week 7 NFL Pick'em</title>
+<style>
+:root{--bg:#f3f5f2;--ink:#17231c;--green:#123b2b;--green2:#1c6244;--gold:#f4c95d;--muted:#66736b;--card:#fff;--line:#dce4dd}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:linear-gradient(135deg,#0d261c,#1b563a);color:white;padding:28px 16px 24px;border-bottom:5px solid var(--gold)}
+.wrap{max-width:820px;margin:auto}.eyebrow{letter-spacing:.14em;text-transform:uppercase;font-size:.75rem;font-weight:800;color:var(--gold)}
+h1{font-size:clamp(2rem,8vw,3.2rem);line-height:1.03;margin:8px 0}.sub{color:#dbe9df;margin:8px 0 0}
+main{padding:18px 12px 42px}.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 14px;box-shadow:0 3px 12px #10291f0b}
+h2{font-size:1.15rem;margin:0 0 12px}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}
+label{display:block;font-size:.83rem;font-weight:750;margin-bottom:5px}input,select,textarea{font:inherit;width:100%;border:1px solid #c8d4ca;border-radius:10px;padding:11px;background:white;color:var(--ink)}
+.help{font-size:.87rem;color:var(--muted);margin:8px 0 0}.game{padding:14px 0;border-top:1px solid var(--line)}.game:first-of-type{border-top:0}
+.gmeta{display:flex;justify-content:space-between;gap:8px;font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:800}.match{font-weight:850;margin:7px 0 11px;font-size:1.04rem}
+.teams{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.team{border:1px solid #cdd8cf;background:#f9fbf9;border-radius:12px;padding:12px 8px;font-weight:800;cursor:pointer;min-height:48px;color:var(--ink)}
+.team small{display:block;font-weight:600;color:var(--muted);font-size:.72rem}
+.team.selected{background:#dff3e6;border:2px solid var(--green2);padding:11px 7px;color:#10402b}.team.selected:before{content:"✓ ";color:var(--green2)}
+button{font:inherit;font-weight:800;border:0;border-radius:11px;padding:12px 15px;cursor:pointer}
+.primary{background:var(--green);color:white}.secondary{background:#e8eee9;color:var(--green)}.gold{background:var(--gold);color:#30250a}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1;min-width:145px}
+.progress{height:8px;border-radius:9px;background:#e5ebe6;overflow:hidden;margin-top:8px}.bar{height:100%;background:var(--green2);width:0}
+textarea{min-height:125px;font-family:ui-monospace,SFMono-Regular,monospace;font-size:.83rem}
+.scoreline{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line)}.scoreline strong{font-size:1.1rem}
+footer{font-size:.78rem;color:var(--muted);text-align:center;padding:8px 14px 28px}
+.hidden{display:none!important}.notice{background:#fff8df;border:1px solid #eedb9b;border-radius:10px;padding:11px;font-size:.87rem}
+@media(min-width:650px){.gamesgrid{display:grid;grid-template-columns:1fr 1fr;column-gap:20px}.game{align-self:start}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="eyebrow">🏈 The weekly showdown</div><h1>WEEK 7<br>NFL PICK’EM</h1><p class="sub">14 games. Two pickers. One set of bragging rights.</p></div></header>
+<main class="wrap">
+<section class="panel">
+<h2>1 · Set up your picks</h2>
+<div class="row"><div><label for="player">Your name</label><input id="player" maxlength="32" placeholder="e.g. Alex"></div><div><label for="opponent">Friend’s name</label><input id="opponent" maxlength="32" placeholder="e.g. Sam"></div></div>
+<p class="help">Your selections save on this device only. Your friend should open their own copy and make their own picks privately.</p>
+<div class="progress"><div class="bar" id="bar"></div></div><p class="help" id="progressText">0 of 14 picks made</p>
+</section>
+<section class="panel"><h2>2 · Choose your winners</h2><div class="gamesgrid" id="games"></div></section>
+<section class="panel">
+<h2>3 · Lock in and share</h2>
+<p class="help">When you’re done, copy your picks and send them in Messages. Your friend does the same. Keep each other’s picks hidden until you’ve both sent them!</p>
+<div class="actions" style="margin-top:12px"><button class="primary" id="makeCode">Create my pick sheet</button><button class="secondary" id="copyCode">Copy for Messages</button></div>
+<label for="myCode" style="margin-top:14px">Your pick sheet</label><textarea id="myCode" placeholder="Your shareable pick sheet will appear here…" readonly></textarea>
+<p class="help">This creates a text share sheet, not a live website link. It does not reveal or sync your saved picks automatically.</p>
+</section>
+<section class="panel">
+<h2>4 · Compare picks after both lock in</h2>
+<label for="friendCode">Paste your friend’s pick sheet here</label><textarea id="friendCode" placeholder="Paste the text your friend sent you…"></textarea>
+<p class="help">Optional: after games finish, select the actual winner for each matchup below to calculate both scores.</p>
+<div id="results" class="hidden"><h2 style="margin-top:16px">Scoreboard</h2><div id="scoreboard"></div></div>
+<div class="actions" style="margin-top:12px"><button class="secondary" id="compare">Compare picks</button><button class="gold" id="reset">Clear my picks</button></div>
+</section>
+<section class="panel"><h2>Game results (optional)</h2><p class="help">Set winners here after each game to score both pick sheets. This list is only stored in your browser.</p><div id="actuals"></div><button class="secondary" id="score" style="margin-top:12px;width:100%">Update scores</button></section>
+</main>
+<footer>Week 7 · October 22–26, 2026 · Picks save locally in this browser. No accounts or tracking.</footer>
+<script>
+const games=[
+{a:"Patriots",b:"Bears",date:"THU · OCT 22"},
+{a:"Steelers",b:"Saints",date:"SUN · OCT 25"},
+{a:"49ers",b:"Falcons",date:"SUN · OCT 25"},
+{a:"Bengals",b:"Ravens",date:"SUN · OCT 25"},
+{a:"Buccaneers",b:"Panthers",date:"SUN · OCT 25"},
+{a:"Giants",b:"Texans",date:"SUN · OCT 25"},
+{a:"Colts",b:"Vikings",date:"SUN · OCT 25"},
+{a:"Dolphins",b:"Jets",date:"SUN · OCT 25"},
+{a:"Browns",b:"Titans",date:"SUN · OCT 25"},
+{a:"Broncos",b:"Cardinals",date:"SUN · OCT 25"},
+{a:"Packers",b:"Lions",date:"SUN · OCT 25"},
+{a:"Rams",b:"Raiders",date:"SUN · OCT 25"},
+{a:"Chiefs",b:"Seahawks",date:"SUN · OCT 25"},
+{a:"Cowboys",b:"Eagles",date:"MON · OCT 26"}
+];
+const $=id=>document.getElementById(id);
+let picks=JSON.parse(localStorage.getItem("wk7picks")||"{}");
+let actuals=JSON.parse(localStorage.getItem("wk7actuals")||"{}");
+$("games").innerHTML=games.map((g,i)=>`<div class="game"><div class="gmeta"><span>${g.date}</span><span>GAME ${i+1}</span></div><div class="match">${g.a} <span style="color:#718077;font-weight:600">at</span> ${g.b}</div><div class="teams"><button class="team ${picks[i]===g.a?'selected':''}" data-i="${i}" data-team="${g.a}">${g.a}<small>Pick to win</small></button><button class="team ${picks[i]===g.b?'selected':''}" data-i="${i}" data-team="${g.b}">${g.b}<small>Pick to win</small></button></div></div>`).join("");
+$("actuals").innerHTML=games.map((g,i)=>`<div class="game"><label for="actual${i}">${i+1}. ${g.a} vs. ${g.b}</label><select id="actual${i}" data-actual="${i}"><option value="">Not final / not entered</option><option value="${g.a}" ${actuals[i]===g.a?'selected':''}>${g.a} won</option><option value="${g.b}" ${actuals[i]===g.b?'selected':''}>${g.b} won</option></select></div>`).join("");
+function save(){localStorage.setItem("wk7picks",JSON.stringify(picks));localStorage.setItem("wk7actuals",JSON.stringify(actuals));document.querySelectorAll(".team").forEach(b=>b.classList.toggle("selected",picks[b.dataset.i]===b.dataset.team));let n=Object.keys(picks).filter(k=>picks[k]).length;$("bar").style.width=(n/14*100)+"%";$("progressText").textContent=`${n} of 14 picks made`; }
+$("games").addEventListener("click",e=>{let b=e.target.closest("button[data-i]");if(!b)return;let i=b.dataset.i;picks[i]=b.dataset.team;save()});
+$("actuals").addEventListener("change",e=>{if(e.target.dataset.actual!==undefined){let i=e.target.dataset.actual;if(e.target.value)actuals[i]=e.target.value;else delete actuals[i];save()}});
+$("player").value=localStorage.getItem("wk7player")||"";$("opponent").value=localStorage.getItem("wk7opponent")||"";
+$("player").addEventListener("input",()=>localStorage.setItem("wk7player",$("player").value));$("opponent").addEventListener("input",()=>localStorage.setItem("wk7opponent",$("opponent").value));
+function sheet(){let name=$("player").value.trim()||"Player";return `WEEK 7 NFL PICK’EM — ${name}\n${games.map((g,i)=>`${i+1}. ${g.a} at ${g.b}: ${picks[i]||"TBD"}`).join("\n")}\nPicks made: ${Object.values(picks).filter(Boolean).length}/14\nKeep picks private until both players have sent theirs!`;}
+$("makeCode").onclick=()=>{$("myCode").value=sheet();$("myCode").focus();$("myCode").select()};
+$("copyCode").onclick=async()=>{if(!$("myCode").value)$("myCode").value=sheet();try{await navigator.clipboard.writeText($("myCode").value);$("copyCode").textContent="Copied! Paste into Messages";}catch(e){$("myCode").focus();$("myCode").select();alert("Your sheet is selected. Choose Copy, then paste it into Messages.")}};
+function parse(text){let result={};for(const line of text.split(/\n/)){let m=line.match(/^\s*(\d+)\.\s+.*?:\s*(.+?)\s*$/);if(m&&+m[1]>=1&&+m[1]<=14){let v=m[2].trim();if(games[+m[1]-1]&&[games[+m[1]-1].a,games[+m[1]-1].b].includes(v))result[+m[1]-1]=v;}}return result;}
+function scoreFor(p){let n=0,done=0;games.forEach((g,i)=>{if(actuals[i]){done++;if(p[i]===actuals[i])n++;}});return {n,done};}
+function compare(){let friend=parse($("friendCode").value);let name=$("player").value.trim()||"You",other=$("opponent").value.trim()||"Friend";let both=games.filter((g,i)=>picks[i]&&friend[i]&&picks[i]===friend[i]).length;$("results").classList.remove("hidden");let me=scoreFor(picks),them=scoreFor(friend);$("scoreboard").innerHTML=`<div class="scoreline"><span>${name} correct</span><strong>${me.n} / ${me.done}</strong></div><div class="scoreline"><span>${other} correct</span><strong>${them.n} / ${them.done}</strong></div><div class="scoreline"><span>Same picks</span><strong>${both} games</strong></div><p class="help">Same picks counts only games where both players selected a team. Correct scores count games with a winner entered above.</p>`;}
+$("compare").onclick=compare;$("score").onclick=compare;
+$("reset").onclick=()=>{if(confirm("Clear all picks saved on this device?")){picks={};actuals={};localStorage.removeItem("wk7picks");localStorage.removeItem("wk7actuals");$("friendCode").value="";$("myCode").value="";document.querySelectorAll("[data-actual]").forEach(s=>s.value="");save();$("results").classList.add("hidden")}};
+save();
+</script>
+</body></html>
